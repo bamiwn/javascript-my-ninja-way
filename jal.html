@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Storage</title>
+
+    <style>
+        label, input {
+            display: block;
+        }
+
+        section {
+            background-color: crimson;
+        }
+    </style>
+</head>
+<body>
+
+    <form action="" id="data-buku">
+        <label for="judul">judul buku</label>
+        <input type="text" id="judul-buku">
+        <label for="penulis">penulis</label>
+        <input type="text" id="penulis">
+        <label for="tahun">tahun</label>
+        <input type="number" id="tahun">
+        <input type="checkbox" id="selesai-baca">
+
+        <button id="submit" type="submit">Kirim data</button>
+    </form>
+
+    <h1>--- Buku Belum Dibaca ---</h1>
+    <section id="daftar-buku">
+
+    </section>
+
+    <h1>--- Buku Selesai Dibaca ---</h1>
+    <section id="daftar-buku-selesai-baca">
+        
+    </section>
+
+
+    <!-- JS -->
+    <script>
+        const dataStorage = 'data';
+        const formBuku = document.getElementById('data-buku');
+
+        if(typeof(Storage) !== 'undefined') {
+            function dataMasuk(data) {
+                let dataBukuArray = [];
+                if(localStorage.getItem(dataStorage) === null) {
+                    dataBukuArray = [];
+                } else {
+                    dataBukuArray = JSON.parse(localStorage.getItem(dataStorage));
+                }
+    
+                dataBukuArray.unshift(data);
+                localStorage.setItem(dataStorage, JSON.stringify(dataBukuArray));
+            }
+
+
+
+            function ambilDataBuku() {
+                return JSON.parse(localStorage.getItem(dataStorage)) || [];
+            }
+
+
+
+            function cetakDataBuku() {
+                const dataBuku = ambilDataBuku();
+                const listDataBuku = document.getElementById('daftar-buku');
+                listDataBuku.innerHTML = "";
+                
+                for (let buku of dataBuku) {
+                    let cetakData = document.createElement('div');
+                    cetakData.innerHTML = "<h4>" + buku.judul_buku + "</h4>";
+                    cetakData.innerHTML += "<p>" + buku.penulis + "</p>";
+                    cetakData.innerHTML += "<p>" + buku.tahun + "</p>";
+                    cetakData.innerHTML += "<button name='tombol-selesai-baca'>" + buku.selesai_baca + "</button>";
+                
+                    listDataBuku.appendChild(cetakData);
+                }
+            }
+
+
+
+            function cetakDataBukuSelesai() {
+                const dataBuku = ambilDataBuku();
+                const listDataBuku = document.getElementById('daftar-buku-selesai-baca');
+                listDataBuku.innerHTML = "";
+                
+                for (let buku of dataBuku) {
+                    let cetakData = document.createElement('div');
+                    cetakData.innerHTML = "<h4>" + buku.judul_buku + "</h4>";
+                    cetakData.innerHTML += "<p>" + buku.penulis + "</p>";
+                    cetakData.innerHTML += "<p>" + buku.tahun + "</p>";
+                    cetakData.innerHTML += "<button>" + buku.selesai_baca + "</button>";
+                
+                    listDataBuku.appendChild(cetakData);
+                }
+            }
+
+
+            function bikinTombol(classCSS, eventListener) {
+                const tombol = document.createElement('button');
+                tombol.classList.add(classCSS);
+                tombol.addEventListener('click', function(event) {
+                    eventListener(event);
+                });
+                return tombol;
+            }
+
+
+            formBuku.addEventListener('submit', function() {
+                let id = new Date();
+                const tangkapJudul = document.getElementById('judul-buku').value;
+                const tangkapPenulis = document.getElementById('penulis').value;
+                const tangkapTahun = document.getElementById('tahun').value;
+                const tangkapCeklis = document.getElementById('selesai-baca');
+                let selesaiBaca = '';
+
+                if(tangkapCeklis.checked) {
+                    selesaiBaca = true;
+                } else {
+                    selesaiBaca = false;
+                }
+
+                const dataBukuObjek = {
+                    'id' : id,
+                    'judul_buku' : tangkapJudul,
+                    'penulis' : tangkapPenulis,
+                    'tahun' : tangkapTahun,
+                    'selesai_baca' : selesaiBaca
+                };
+                dataMasuk(dataBukuObjek);
+                if(selesaiBaca) {
+                    cetakDataBukuSelesai();
+                    // selesaiBacaBuku();
+                } else {
+                    cetakDataBuku();
+                }
+            });
+
+
+            window.addEventListener('load', function() {
+                const dataBuku = ambilDataBuku();
+                cetakDataBuku(dataBuku);
+            });
+
+            // let dataBukuString = JSON.stringify(dataBukuObjek);
+            // localStorage.setItem(dataStorage, dataBukuString);
+
+            // let itemBukuObjek = localStorage.getItem(dataStorage);
+            // let itemString = JSON.parse(itemBukuObjek);
+            // document.getElementById('judul').innerText = itemString['judul_buku'];
+            // document.getElementById('penulis').innerText = itemString.penulis;
+            // document.getElementById('tahun').innerText = itemString.tahun;
+            // console.log(itemString);
+        } else {
+            alert('Browser tidak mendudukung web storage');
+        }
+    </script>
+</body>
+</html>
